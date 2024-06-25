@@ -1,28 +1,28 @@
-const {defineConfig} = require("cypress");
+const { defineConfig } = require("cypress");
+require('dotenv').config();
 
 module.exports = defineConfig({
     env: {
-        "discord": {
-            "baseUrl": "https://discord.com",
-            "creds": {
-                "email": "emmettby@gmail.com",
-                "password": "DBPqHNDZjsRx7fUNR0p7"
+        discord: {
+            baseUrl: process.env.DISCORD_BASE_URL,
+            creds: {
+                email: process.env.DISCORD_EMAIL,
+                password: process.env.DISCORD_PASSWORD
             }
         },
         stocks: {
             adobestock: {
-                baseUrl: "https://stock.adobe.com",
+                baseUrl: process.env.ADOBESTOCK_BASE_URL,
                 creds: {
-                    email: "Shelepkov.vladislav@outlook.com",
-                    password: "eH10EcG8CX4RYYDmS7f8"
+                    email: process.env.ADOBESTOCK_EMAIL,
+                    password: process.env.ADOBESTOCK_PASSWORD
                 }
             },
             shutterstock: {
-                name: 'shutterstock',
-                baseUrl: "https://contributor-accounts.shutterstock.com",
+                baseUrl: process.env.SHUTTERSTOCK_BASE_URL,
                 creds: {
-                    email: "Shelepkov.vladislav@outlook.com",
-                    password: "eH10EcG8CX4RYYDmS7f8"
+                    email: process.env.SHUTTERSTOCK_EMAIL,
+                    password: process.env.SHUTTERSTOCK_PASSWORD
                 }
             }
         }
