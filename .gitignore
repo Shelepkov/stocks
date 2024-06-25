@@ -1,11 +1,9 @@
 # Ignoring node_modules
 node_modules/
 
-# Ignoring environment variables file
-.env
-
 # Other files and directories to ignore
 dist/
 build/
 .DS_Store
 *.log
+/.env
