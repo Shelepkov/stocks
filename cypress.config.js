@@ -1,4 +1,4 @@
-const { defineConfig } = require("cypress");
+const {defineConfig} = require("cypress");
 
 module.exports = defineConfig({
     env: {
@@ -18,6 +18,7 @@ module.exports = defineConfig({
                 }
             },
             shutterstock: {
+                name: 'shutterstock',
                 baseUrl: "https://contributor-accounts.shutterstock.com",
                 creds: {
                     email: "Shelepkov.vladislav@outlook.com",
