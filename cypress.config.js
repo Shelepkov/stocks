@@ -20,6 +20,7 @@ module.exports = defineConfig({
             },
             shutterstock: {
                 baseUrl: process.env.SHUTTERSTOCK_BASE_URL,
+                loginUrl: process.env.SHUTTERSTOCK_LOGIN_URL,
                 creds: {
                     email: process.env.SHUTTERSTOCK_EMAIL,
                     password: process.env.SHUTTERSTOCK_PASSWORD
@@ -31,5 +32,12 @@ module.exports = defineConfig({
         setupNodeEvents(on, config) {
             // implement node event listeners here
         },
+        experimentalWebKitSupport: true,
+        video: false,
+        screenshotOnRunFailure: false,
+        reporter: 'spec',
+        reporterOptions: {
+            toConsole: false
+        }
     },
 });

@@ -43,3 +43,44 @@ Cypress.on('fail', (error, runnable) => {
     cy.log('Test failed: ', error.message);
     return false; // возвращаем false, чтобы предотвратить падение теста
 });
+
+
+const origLog = Cypress.log
+Cypress.log = function (opts, ...other) {
+    if (opts.displayName === 'xhr' || opts.name === 'xhr') {
+        const url = opts.url || (opts.consoleProps && opts.consoleProps.Stubbed === 'Yes' && opts.consoleProps.URL);
+
+        const ignoredUrls = [
+            '/web/api/system/bootstrap-data',
+            'https://bam.nr-data.net/',
+
+        ];
+
+        if (url && ignoredUrls.some(ignoredUrl => url.includes(ignoredUrl))) {
+            return null;
+        }
+    }
+
+    return origLog.call(this, opts, ...other)
+}
+let LOCAL_STORAGE_MEMORY = {};
+
+Cypress.Commands.add("saveLocalStorage", () => {
+    Object.keys(localStorage).forEach(key => {
+        LOCAL_STORAGE_MEMORY[key] = localStorage[key];
+    });
+});
+
+Cypress.Commands.add("restoreLocalStorage", () => {
+    Object.keys(LOCAL_STORAGE_MEMORY).forEach(key => {
+        localStorage.setItem(key, LOCAL_STORAGE_MEMORY[key]);
+    });
+});
+
+beforeEach(() => {
+    cy.restoreLocalStorage();
+});
+
+afterEach(() => {
+    cy.saveLocalStorage();
+});
