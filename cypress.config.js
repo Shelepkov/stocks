@@ -13,6 +13,7 @@ module.exports = defineConfig({
         stocks: {
             adobestock: {
                 baseUrl: process.env.ADOBESTOCK_BASE_URL,
+                loginUrl: process.env.ADOBESTOCK_LOGIN_URL,
                 creds: {
                     email: process.env.ADOBESTOCK_EMAIL,
                     password: process.env.ADOBESTOCK_PASSWORD
