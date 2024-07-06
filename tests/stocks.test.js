@@ -9,16 +9,9 @@ test('Run stocks', async () => {
     const page = await context.newPage();
 
     if (!await isLoggedIn(page)) {
-        console.log('not logged in')
         await login(page, context);
     }
-    else{
-        console.log('logged in')
-    }
 
-    await page.goto('https://discord.com/channels/@me/1253281994599698482');
-
-    await page.waitForSelector('[data-slate-editor="true"]');
     for (let i = 0; i < 999; i++) {
         await saveImage(page);
     }
