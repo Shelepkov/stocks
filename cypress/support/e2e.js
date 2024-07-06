@@ -32,9 +32,9 @@ Cypress.on('window:before:load', (win) => {
     });
 });
 
-
 Cypress.on('uncaught:exception', (err, runnable) => {
-    // Возвращаем false, чтобы предотвратить падение теста из-за ошибок в консоли
+    // Returning false here prevents Cypress from
+    // failing the test due to the uncaught exception
     return false;
 });
 
@@ -53,7 +53,9 @@ Cypress.log = function (opts, ...other) {
         const ignoredUrls = [
             '/web/api/system/bootstrap-data',
             'https://bam.nr-data.net/',
-
+            'https://submit.shutterstock.com/api/next',
+            'https://cdn.cookielaw.org',
+            ''
         ];
 
         if (url && ignoredUrls.some(ignoredUrl => url.includes(ignoredUrl))) {
@@ -63,24 +65,3 @@ Cypress.log = function (opts, ...other) {
 
     return origLog.call(this, opts, ...other)
 }
-let LOCAL_STORAGE_MEMORY = {};
-
-Cypress.Commands.add("saveLocalStorage", () => {
-    Object.keys(localStorage).forEach(key => {
-        LOCAL_STORAGE_MEMORY[key] = localStorage[key];
-    });
-});
-
-Cypress.Commands.add("restoreLocalStorage", () => {
-    Object.keys(LOCAL_STORAGE_MEMORY).forEach(key => {
-        localStorage.setItem(key, LOCAL_STORAGE_MEMORY[key]);
-    });
-});
-
-beforeEach(() => {
-    cy.restoreLocalStorage();
-});
-
-afterEach(() => {
-    cy.saveLocalStorage();
-});

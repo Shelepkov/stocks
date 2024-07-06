@@ -4,16 +4,20 @@ export const saveCookies = (stockName) => {
     });
 };
 
-export const loadCookies = (stockName) => {
+export const loadCookies = (stockName, domain) => {
     cy.readFile(`cypress/cookies/${stockName}.json`).then((cookies) => {
-        cookies.forEach((cookie) => {
-            cy.setCookie(cookie.name, cookie.value, {
-                domain: cookie.domain,
-                path: cookie.path,
-                secure: cookie.secure,
-                httpOnly: cookie.httpOnly,
-                expiry: cookie.expiry,
+        cy.visit(domain).then(() => {
+            cookies.forEach((cookie) => {
+                cy.setCookie(cookie.name, cookie.value, {
+                    domain: cookie.domain,
+                    path: cookie.path,
+                    secure: cookie.secure,
+                    httpOnly: cookie.httpOnly,
+                    expiry: cookie.expiry,
+                });
             });
+            cy.reload();
         });
     });
 };
+

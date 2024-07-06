@@ -1,9 +1,5 @@
-# Ignoring node_modules
 node_modules/
-
-# Other files and directories to ignore
-dist/
-build/
-.DS_Store
-*.log
 /.env
+/temp/
+/cookies/
+/playwright-report/
