@@ -1,14 +1,19 @@
-const {saveCookies, loadCookies} = require('../helpers/cookies');
-const {downloadFile} = require('./files');
-const config = require('../playwright.config');
-
+const {saveStorageState} = require('../../helpers/storage');
+const {downloadFile} = require('../files');
+const config = require('../../playwright.config');
 const discordConfig = config.env.discord;
 
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-
 const isLoggedIn = async (page) => {
-    await page.goto(`${discordConfig.baseUrl}/channels/@me`);
-    return await page.$('[data-testid="guildsnav"]') !== null;
+    const mainUrl = `${discordConfig.baseUrl}/channels/@me`;
+    await page.goto(mainUrl);
+
+    try {
+        const loginButton = await page.waitForSelector('button[type="submit"]', {timeout: 5000});
+        const buttonText = await loginButton.textContent();
+        return buttonText.trim() !== 'Log In';
+    } catch (e) {
+        return true;
+    }
 };
 
 const login = async (page, context) => {
@@ -17,7 +22,7 @@ const login = async (page, context) => {
     await page.fill('input[name="password"]', discordConfig.creds.password);
     await page.click('button[type="submit"]');
     await page.waitForNavigation();
-    await saveCookies(context, 'discord');
+    await saveStorageState(context, 'discord');
 };
 
 const getLastMessage = async (page) => {
@@ -39,7 +44,6 @@ const extractImageLink = async (lastMessage) => {
         const imageElement = await lastMessage.$('div.imageWrapper_d4597d img.lazyImg_cda674');
         if (imageElement) {
             let imageUrl = await imageElement.getAttribute('src');
-            // Remove width and height query parameters
             imageUrl = imageUrl.replace(/&width=\d+&height=\d+/, '');
             console.log('Image link extracted:', imageUrl);
             return imageUrl;

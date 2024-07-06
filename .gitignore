@@ -1,5 +1,6 @@
 node_modules/
 /.env
 /temp/
-/cookies/
 /playwright-report/
+/test-results/
+/storage/
