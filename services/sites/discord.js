@@ -1,5 +1,6 @@
 const {saveStorageState} = require('../../helpers/storage');
 const {downloadFile} = require('../files');
+const {delay} = require('../time');
 const config = require('../../playwright.config');
 const discordConfig = config.env.discord;
 
@@ -25,6 +26,12 @@ const login = async (page, context) => {
     await saveStorageState(context, 'discord');
 };
 
+const auth = async (page, context) => {
+    if (!await isLoggedIn(page)) {
+        await login(page, context);
+    }
+};
+
 const getLastMessage = async (page) => {
     const messages = await page.$$('ol[data-list-id="chat-messages"] > li');
 
@@ -38,10 +45,10 @@ const getLastMessage = async (page) => {
     }
 };
 
-const extractImageLink = async (lastMessage) => {
-    if (lastMessage) {
+const extractImageLink = async (message) => {
+    if (message) {
         console.log('Extracting image link from the last message...');
-        const imageElement = await lastMessage.$('div.imageWrapper_d4597d img.lazyImg_cda674');
+        const imageElement = await message.$('div.imageWrapper_d4597d img.lazyImg_cda674');
         if (imageElement) {
             let imageUrl = await imageElement.getAttribute('src');
             imageUrl = imageUrl.replace(/&width=\d+&height=\d+/, '');
@@ -65,10 +72,10 @@ const downloadImagesInFormats = async (imageUrl, formats) => {
 };
 
 
-const clickButtonInLastMessage = async (lastMessage, buttonText) => {
-    if (lastMessage) {
+const clickButtonInMessage = async (message, buttonText) => {
+    if (message) {
         console.log('Searching for button with text "U1"...');
-        const button = await lastMessage.$(`button:has-text("${buttonText}")`);
+        const button = await message.$(`button:has-text("${buttonText}")`);
         if (button) {
             console.log(`Button with text ${buttonText} found. Clicking the button...`);
             await button.click();
@@ -79,24 +86,24 @@ const clickButtonInLastMessage = async (lastMessage, buttonText) => {
     }
 };
 
+const createImage = async (page, prompt) => {
+    await page.goto(discordConfig.chatUrl);
+    await page.waitForSelector('div[contenteditable="true"][data-slate-editor="true"]');
+    await page.type('div[contenteditable="true"][data-slate-editor="true"]', `/imagine ${prompt}`);
+    await page.keyboard.press('Enter');
+};
+
 const saveImage = async (page) => {
     let lastMessage;
-    console.log('Navigating to chat URL...');
     await page.goto(discordConfig.chatUrl);
-    console.log('Waiting for chat messages selector...');
     await page.waitForSelector('[data-list-id="chat-messages"]');
-
-    // console.log('Getting the last message in the chat...');
-    // lastMessage = await getLastMessage(page);
-
-    // console.log('Handling the last message...');
-    // await clickButtonInLastMessage(lastMessage, 'U1');
-    // await delay(5000);
-    // lastMessage = await getLastMessage(page);
-    // await clickButtonInLastMessage(lastMessage, 'Upscale');
-    // await delay(60000);
     lastMessage = await getLastMessage(page);
-
+    await clickButtonInMessage(lastMessage, 'U1');
+    await delay(5000);
+    lastMessage = await getLastMessage(page);
+    await clickButtonInMessage(lastMessage, 'Upscale');
+    await delay(90000);
+    lastMessage = await getLastMessage(page);
     const imageLink = await extractImageLink(lastMessage);
     if (imageLink) {
         console.log('Downloading images in PNG and WEBP formats...');
@@ -104,4 +111,4 @@ const saveImage = async (page) => {
     }
 };
 
-module.exports = {isLoggedIn, login, saveImage};
+module.exports = {auth, isLoggedIn, login, saveImage, createImage};
