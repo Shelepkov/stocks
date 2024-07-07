@@ -13,7 +13,9 @@ test('Run stocks', async () => {
 
     await discordAuth(page, context);
     await createImage(page, prompt);
-    await delay(90000);
+    console.log('test')
+
+    console.log('test2')
     await saveImage(page);
 
     // for (let i = 0; i < 999; i++) {

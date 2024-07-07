@@ -36,9 +36,7 @@ const getLastMessage = async (page) => {
     const messages = await page.$$('ol[data-list-id="chat-messages"] > li');
 
     if (messages.length > 0) {
-        const lastMessage = messages[messages.length - 1];
-        console.log('Last message found:', lastMessage);
-        return lastMessage;
+        return messages[messages.length - 1];
     } else {
         console.log('No messages found.');
         return null;
@@ -47,12 +45,10 @@ const getLastMessage = async (page) => {
 
 const extractImageLink = async (message) => {
     if (message) {
-        console.log('Extracting image link from the last message...');
         const imageElement = await message.$('div.imageWrapper_d4597d img.lazyImg_cda674');
         if (imageElement) {
             let imageUrl = await imageElement.getAttribute('src');
             imageUrl = imageUrl.replace(/&width=\d+&height=\d+/, '');
-            console.log('Image link extracted:', imageUrl);
             return imageUrl;
         } else {
             console.log('Image element not found.');
@@ -71,15 +67,26 @@ const downloadImagesInFormats = async (imageUrl, formats) => {
     }
 };
 
+const waitUntilHandleRequest = async (page) => {
+    await delay(5000);
+    while (true) {
+        const message = await getLastMessage(page);
+        const buttons = await message.$$('button');
+        if (buttons.length === 0) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+            continue;
+        } else {
+            await delay(2000);
+            break;
+        }
+    }
+};
 
 const clickButtonInMessage = async (message, buttonText) => {
     if (message) {
-        console.log('Searching for button with text "U1"...');
         const button = await message.$(`button:has-text("${buttonText}")`);
         if (button) {
-            console.log(`Button with text ${buttonText} found. Clicking the button...`);
             await button.click();
-            console.log('Button clicked.');
         } else {
             console.log(`Button with text ${buttonText} not found.`);
         }
@@ -91,6 +98,7 @@ const createImage = async (page, prompt) => {
     await page.waitForSelector('div[contenteditable="true"][data-slate-editor="true"]');
     await page.type('div[contenteditable="true"][data-slate-editor="true"]', `/imagine ${prompt}`);
     await page.keyboard.press('Enter');
+    await waitUntilHandleRequest(page);
 };
 
 const saveImage = async (page) => {
@@ -99,10 +107,10 @@ const saveImage = async (page) => {
     await page.waitForSelector('[data-list-id="chat-messages"]');
     lastMessage = await getLastMessage(page);
     await clickButtonInMessage(lastMessage, 'U1');
-    await delay(5000);
+    await waitUntilHandleRequest(page);
     lastMessage = await getLastMessage(page);
     await clickButtonInMessage(lastMessage, 'Upscale');
-    await delay(90000);
+    await waitUntilHandleRequest(page);
     lastMessage = await getLastMessage(page);
     const imageLink = await extractImageLink(lastMessage);
     if (imageLink) {
